@@ -1,0 +1,149 @@
+/* src/components/Header.css */
+
+/* Основная шапка */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #0f0c29 0%, #1e1b4b 50%, #302b63 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+.header-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 30px;
+  display: flex;
+  justify-content: space-between;  /* логотип слева, навигация справа */
+  align-items: center;
+  height: 85px;
+}
+
+/* Логотип */
+.logo {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #a78bfa;
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+
+.logo span {
+  color: #c084fc;
+}
+
+/* Навигация (справа) */
+.nav {
+  display: flex;
+  gap: 40px;
+}
+
+.nav-link {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  color: #e0e7ff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-link:hover {
+  color: #c084fc;
+  transform: translateY(-2px);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 3px;
+  bottom: -8px;
+  left: 50%;
+  background: linear-gradient(90deg, #a78bfa, #c084fc);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+  width: 80%;
+}
+
+/* Бургер-меню (справа на мобильных) */
+.burger {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.burger span {
+  width: 30px;
+  height: 3.5px;
+  background: #e0e7ff;
+  border-radius: 2px;
+  transition: all 0.4s;
+}
+
+.burger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+}
+
+.burger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.burger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Мобильное меню */
+.mobile-menu {
+  position: fixed;
+  top: 85px;
+  left: 0;
+  right: 0;
+  background: rgba(15, 12, 41, 0.95);
+  backdrop-filter: blur(12px);
+  padding: 30px 20px;
+  display: none;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.mobile-menu.active {
+  display: flex;
+}
+
+.mobile-menu a {
+  font-size: 1.3rem;
+  color: #e0e7ff;
+  text-align: center;
+  padding: 16px 0;
+  border-radius: 10px;
+  transition: background 0.3s;
+}
+
+.mobile-menu a:hover {
+  background: rgba(99, 102, 241, 0.2);
+  color: #c084fc;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .nav {
+    display: none;
+  }
+
+  .burger {
+    display: flex;
+  }
+}
