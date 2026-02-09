@@ -1,12 +1,31 @@
-import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchAppData } from './store/appDataSlice';
 import Header from './components/Header';
 
 function App() {
-  const { message } = useSelector(state => state.data);
-  // если у тебя уже есть tasks из Redux, можно использовать:
-  // const { tasks } = useSelector(state => state.tasks);
-  // пока оставим заглушку для примера
-  const tasks = []; // заменить на реальные данные из Redux, когда подключишь
+  const dispatch = useDispatch();
+  const { data, status } = useSelector(state => state.appData);
+
+  useEffect(() => {
+    dispatch(fetchAppData());
+  }, [dispatch]);
+
+  if (status === 'loading') {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f0f1a', color: 'white' }}>
+        <h2>Загрузка данных... 🍰</h2>
+      </div>
+    );
+  }
+
+  if (status === 'failed' || !data) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f0f1a', color: 'white' }}>
+        <h2>Ошибка загрузки данных 😔</h2>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -17,43 +36,64 @@ function App() {
         maxWidth: '1100px',
         margin: '0 auto',
         padding: '40px 20px',
-        minHeight: '100vh',
-        background: '#7899da' // тёмный фон для концентрации
+        background: '#0f0f1a',
+        color: 'white'
       }}>
-        <h1 style={{
+        {/* Блок 1 — приветствие */}
+        <div style={{
           textAlign: 'center',
-          color: '#410083',
-          fontSize: '3.5rem',
-          marginBottom: '2rem'
+          marginBottom: '60px'
         }}>
-          {message || "Мои задачи на сегодня"}
-        </h1>
+          <h1 style={{
+            fontSize: '3.5rem',
+            color: '#a78bfa',
+            marginBottom: '1rem'
+          }}>
+            {data.welcome.title}
+          </h1>
+          <p style={{ fontSize: '1.4rem', color: '#c084fc' }}>
+            {data.welcome.subtitle}
+          </p>
+          <p style={{ fontSize: '1.2rem', color: '#94a3b8', marginTop: '1rem' }}>
+            {data.welcome.motivation}
+          </p>
+        </div>
 
+        {/* Блок 2 — статистика */}
         <div style={{
           background: 'rgba(30, 41, 59, 0.6)',
           backdropFilter: 'blur(12px)',
           borderRadius: '20px',
           padding: '40px',
-          boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-          marginBottom: '40px'
+          marginBottom: '40px',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
         }}>
-          <h2 style={{
-            color: '#410083',
-            fontSize: '2.2rem',
-            marginBottom: '1.5rem',
-            textAlign: 'center'
-          }}>
+          <h2 style={{ textAlign: 'center', color: '#c084fc', marginBottom: '2rem' }}>
             Текущий статус
           </h2>
-          <div style={{ fontSize: '1.4rem', lineHeight: '2', color: '#e0e7ff', textAlign: 'center' }}>
-            <p><strong>Активных задач:</strong> {tasks.filter ? tasks.filter(t => !t.completed).length : 0}</p>
-            <p><strong>Всего задач:</strong> {tasks.length || 0}</p>
-            <p style={{ marginTop: '1.5rem', fontStyle: 'italic' }}>
-              Продолжай в том же духе! Ты на правильном пути 💪
-            </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '60px', flexWrap: 'wrap' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: '#a78bfa' }}>
+                {data.stats.activeTasks}
+              </div>
+              <div style={{ color: '#94a3b8' }}>Активных задач</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: '#a78bfa' }}>
+                {data.stats.completedToday}
+              </div>
+              <div style={{ color: '#94a3b8' }}>Завершено сегодня</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: '#a78bfa' }}>
+                {data.stats.productivityScore}%
+              </div>
+              <div style={{ color: '#94a3b8' }}>Продуктивность</div>
+            </div>
           </div>
         </div>
 
+        {/* Блок 3 — List/Detail (список задач) */}
         <div style={{
           background: 'rgba(30, 41, 59, 0.6)',
           backdropFilter: 'blur(12px)',
@@ -61,51 +101,72 @@ function App() {
           padding: '40px',
           boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
         }}>
-          <h2 style={{
-            color: '#410083',
-            fontSize: '2.2rem',
-            marginBottom: '1.5rem',
-            textAlign: 'center'
-          }}>
+          <h2 style={{ textAlign: 'center', color: '#c084fc', marginBottom: '2rem' }}>
             Задачи на сегодня
           </h2>
 
-          {tasks.length === 0 ? (
+          {data.tasks.length === 0 ? (
             <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '1.3rem' }}>
-              Пока задач нет... Добавь первую и начни день продуктивно! 🚀
+              Пока задач нет... Добавь первую! 🚀
             </p>
           ) : (
-            <ul style={{ listStyle: 'none', padding: 0 }}>
-              {tasks.map(task => (
-                <li key={task.id} style={{
-                  fontSize: '1.3rem',
-                  padding: '16px',
-                  margin: '12px 0',
-                  background: 'rgba(59, 130, 246, 0.1)',
-                  borderRadius: '12px',
-                  color: '#bfdbfe',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px'
+            <div style={{ display: 'grid', gap: '20px' }}>
+              {data.tasks.map(task => (
+                <div key={task.id} style={{
+                  background: 'rgba(59, 130, 246, 0.12)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  border: '1px solid rgba(99, 102, 241, 0.2)'
                 }}>
-                  <input type="checkbox" checked={task.completed} readOnly />
-                  <span style={task.completed ? { textDecoration: 'line-through', opacity: 0.7 } : {}}>
-                    {task.text}
-                  </span>
-                </li>
+                  <h3 style={{ color: '#c084fc', marginBottom: '12px' }}>
+                    {task.title}
+                  </h3>
+                  <p style={{ color: '#bfdbfe', marginBottom: '12px' }}>
+                    {task.description}
+                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#94a3b8' }}>
+                    <span>Приоритет: <strong style={{ color: task.priority === 'high' ? '#f87171' : '#fbbf24' }}>
+                      {task.priority}
+                    </strong></span>
+                    <span>Дедлайн: {task.deadline}</span>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
 
-        <p style={{
-          textAlign: 'center',
-          marginTop: '60px',
-          color: '#410083',
-          fontSize: '1.1rem'
+        {/* Блок 4 — цели */}
+        <div style={{
+          background: 'rgba(30, 41, 59, 0.6)',
+          backdropFilter: 'blur(12px)',
+          borderRadius: '20px',
+          padding: '40px',
+          marginTop: '40px',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
         }}>
-          Управляй задачами эффективно с Redux Toolkit • 2026
-        </p>
+          <h2 style={{ textAlign: 'center', color: '#c084fc', marginBottom: '2rem' }}>
+            Твои цели
+          </h2>
+          <div style={{ display: 'grid', gap: '20px' }}>
+            {data.goals.map(goal => (
+              <div key={goal.id} style={{
+                background: 'rgba(167, 139, 250, 0.12)',
+                borderRadius: '16px',
+                padding: '24px',
+                border: '1px solid rgba(167, 139, 250, 0.2)'
+              }}>
+                <h3 style={{ color: '#c084fc', marginBottom: '12px' }}>
+                  {goal.title}
+                </h3>
+                <div style={{ marginBottom: '12px' }}>
+                  Прогресс: <strong>{goal.progress}/{goal.total}</strong>
+                </div>
+                <p style={{ color: '#bfdbfe' }}>{goal.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </main>
     </>
   );
