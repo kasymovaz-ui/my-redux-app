@@ -1,5 +1,4 @@
-// src/store/tasksSlice.js
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, nanoid } from '@reduxjs/toolkit';
 
 const loadTasksFromStorage = () => {
   try {
@@ -21,29 +20,65 @@ const tasksSlice = createSlice({
   reducers: {
     addTask: (state, action) => {
       const newTask = {
-        id: Date.now().toString(), // простой уникальный ID
+        id: nanoid(),
         text: action.payload,
         completed: false,
+        likes: 0,
+        isFavorite: false,
+        ratings: [],           // массив оценок (например [5, 4, 3])
+        createdAt: new Date().toISOString()
       };
       state.tasks.push(newTask);
       localStorage.setItem('tasks', JSON.stringify(state.tasks));
     },
+
     toggleTask: (state, action) => {
       const task = state.tasks.find(t => t.id === action.payload);
-      if (task) {
-        task.completed = !task.completed;
-        localStorage.setItem('tasks', JSON.stringify(state.tasks));
-      }
+      if (task) task.completed = !task.completed;
+      localStorage.setItem('tasks', JSON.stringify(state.tasks));
     },
+
     deleteTask: (state, action) => {
       state.tasks = state.tasks.filter(t => t.id !== action.payload);
       localStorage.setItem('tasks', JSON.stringify(state.tasks));
     },
+
     setFilter: (state, action) => {
       state.filter = action.payload;
     },
-  },
+
+    // === Новые действия ===
+    toggleLike: (state, action) => {
+      const task = state.tasks.find(t => t.id === action.payload);
+      if (task) task.likes += 1;
+      localStorage.setItem('tasks', JSON.stringify(state.tasks));
+    },
+
+    toggleFavorite: (state, action) => {
+      const task = state.tasks.find(t => t.id === action.payload);
+      if (task) task.isFavorite = !task.isFavorite;
+      localStorage.setItem('tasks', JSON.stringify(state.tasks));
+    },
+
+    addRating: (state, action) => {
+      const { taskId, rating } = action.payload; // rating от 1 до 5
+      const task = state.tasks.find(t => t.id === taskId);
+      if (task) {
+        task.ratings.push(rating);
+      }
+      localStorage.setItem('tasks', JSON.stringify(state.tasks));
+    },
+  }
 });
 
-export const { addTask, toggleTask, deleteTask, setFilter } = tasksSlice.actions;
+export const { 
+  addTask, 
+  toggleTask, 
+  deleteTask, 
+  setFilter,
+  toggleLike,
+  toggleFavorite,
+  addRating 
+} = tasksSlice.actions;
+
 export default tasksSlice.reducer;
